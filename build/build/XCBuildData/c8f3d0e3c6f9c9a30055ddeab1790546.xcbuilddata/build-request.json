@@ -1,0 +1,79 @@
+{
+  "buildCommand" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : false,
+    "targets" : null
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9eb06854ba0d6b48289ea3aa793971c208"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9e127a75c0353ddc9df5096c0615eb70a2"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9e077d8156af75c36204395b53fd06d40d"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9e764458fe442df51068d9e55bcee0f372"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9ead52038045d9a1dfc027a3514e1fae21"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9ed2c868dcfc8c8ebab768d5a8469c3634"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9e5adf83905e6a746776d54603bc34f4f3"
+    },
+    {
+      "guid" : "949beead25e39b7b4c84f8914ee55d9eddb9459c15c36263a294df09fc8300e5"
+    }
+  ],
+  "containerPath" : "/Users/owner/Documents/HALO9_Plugin/build/HALO9_Player.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "x86_64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx14.5",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "x86_64h",
+        "x86_64"
+      ],
+      "targetArchitecture" : "x86_64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "",
+      "buildProductsPath" : "",
+      "derivedDataPath" : "/Users/owner/Library/Developer/Xcode/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/owner/Library/Developer/Xcode/DerivedData/HALO9_Player-ebfcbadethuqueayjppbsanqulxb/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/owner/Library/Developer/Xcode/DerivedData/HALO9_Player-ebfcbadethuqueayjppbsanqulxb/Index.noindex/PrecompiledHeaders",
+      "pchPath" : ""
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "NO",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "qos" : "default",
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : true,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

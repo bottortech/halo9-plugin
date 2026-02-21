@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "kit_808_classic",
+  "name": "808 Classic",
+  "description": "Punchy modern 808 kit: kick, snare, hats, clap, perc.",
+  "accentColor": "#33FFC8",
+  "ui": {
+    "chipLabel": "808 Classic",
+    "badge": "Factory",
+    "padGlowIntensity": 0.95
+  },
+  "mapping": {
+    "layout": "pads",
+    "pads": [
+      { "pad": "P1", "name": "Kick",  "file": "samples/kick.wav",    "gain": 1.0 },
+      { "pad": "P2", "name": "Snare", "file": "samples/snare.wav",   "gain": 1.0 },
+      { "pad": "P3", "name": "Clap",  "file": "samples/clap.wav",    "gain": 0.95 },
+      { "pad": "P4", "name": "Hat",   "file": "samples/hat.wav",     "gain": 0.9 },
+      { "pad": "P5", "name": "Open",  "file": "samples/openhat.wav", "gain": 0.9 },
+      { "pad": "P6", "name": "Perc",  "file": "samples/perc.wav",    "gain": 0.9 },
+      { "pad": "P7", "name": "Rim",   "file": "samples/rim.wav",     "gain": 0.85 },
+      { "pad": "P8", "name": "FX",    "file": "samples/fx.wav",      "gain": 0.85 }
+    ]
+  },
+  "audio": {
+    "engineHint": "sampler",
+    "sampleRoot": "samples",
+    "notes": "If audio playback isn't wired, still apply pad labels + selection state."
+  }
+}

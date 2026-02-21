@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "pack_lofi",
+  "name": "Lo-Fi",
+  "description": "Warm, dusty textures with gentle wobble and tape vibe.",
+  "accentColor": "#33FFC8",
+  "ui": {
+    "chipLabel": "Lo-Fi",
+    "badge": "Factory",
+    "keyboardHighlightColor": "#33FFC8",
+    "padGlowIntensity": 0.85
+  },
+  "padBank": [
+    { "pad": "P1", "label": "Chord", "role": "synth", "slot": "chord" },
+    { "pad": "P2", "label": "Lead",  "role": "synth", "slot": "lead" },
+    { "pad": "P3", "label": "Bass",  "role": "synth", "slot": "bass" },
+    { "pad": "P4", "label": "Keys",  "role": "synth", "slot": "keys" },
+    { "pad": "P5", "label": "Pad",   "role": "synth", "slot": "pad" },
+    { "pad": "P6", "label": "FX",    "role": "fx",    "slot": "fx" },
+    { "pad": "P7", "label": "Arp",   "role": "synth", "slot": "arp" },
+    { "pad": "P8", "label": "Vox",   "role": "texture","slot": "vox" }
+  ],
+  "presets": {
+    "type": "inline",
+    "items": [
+      { "id": "lofi_dust_chords", "name": "Dust Chords", "category": "Chord" },
+      { "id": "lofi_tape_lead",   "name": "Tape Lead",   "category": "Lead" },
+      { "id": "lofi_warm_bass",   "name": "Warm Bass",   "category": "Bass" },
+      { "id": "lofi_room_keys",   "name": "Room Keys",   "category": "Keys" }
+    ]
+  },
+  "audio": {
+    "engineHint": "synth",
+    "sampleRoot": "samples",
+    "notes": "This pack can be wired later. For now, use it to drive UI + routing placeholders."
+  }
+}

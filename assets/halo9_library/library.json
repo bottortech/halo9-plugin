@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "packs": [
+    {
+      "id": "pack_lofi",
+      "name": "Lo-Fi",
+      "path": "packs/LoFi"
+    }
+  ],
+  "drumkits": [
+    {
+      "id": "kit_808_classic",
+      "name": "808 Classic",
+      "path": "drumkits/808Classic"
+    }
+  ]
+}
