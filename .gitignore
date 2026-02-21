@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# CMake / build outputs
+build/
+build2/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.log
+
+# Xcode generated
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+xcuserdata/
+
+# Artifacts
+*_artefacts/
+Release/
+Debug/
