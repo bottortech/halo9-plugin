@@ -151,3 +151,4 @@ The Atmosphere knob drives:
 - Reverb wet level 0 → 0.45
 - Stereo width ×1.0 → ×2.2
 - LPF cutoff reduction (up to −50% at maximum)
+# halo9-plugin
