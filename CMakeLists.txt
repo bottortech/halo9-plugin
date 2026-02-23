@@ -70,22 +70,14 @@ juce_add_plugin(HALO9_Player
 juce_generate_juce_header(HALO9_Player)
 
 # ── Source files ─────────────────────────────────────────────────────────────
+# Clean rewrite: minimal core + UI/LookAndFeel only (no legacy Audio/Data code)
 target_sources(HALO9_Player PRIVATE
     Source/PluginProcessor.h
     Source/PluginProcessor.cpp
     Source/PluginEditor.h
     Source/PluginEditor.cpp
-    Source/Audio/PadSampler.h
-    Source/Audio/PadSampler.cpp
-    Source/Audio/H9SynthVoice.h
-    Source/Data/PackScanner.h
-    Source/Data/PackScanner.cpp
-    Source/Data/FactorySounds.h
-    Source/Data/H9Library.h
-    Source/Data/H9Library.cpp
     Source/UI/H9LookAndFeel.h
     Source/UI/H9LookAndFeel.cpp
-    Source/EmbeddedHalo9.cpp
 )
 
 # ── Include paths ────────────────────────────────────────────────────────────

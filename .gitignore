@@ -3,46 +3,61 @@
 .AppleDouble
 .LSOverride
 
-# CMake / build outputs
+# Build folders and artifacts
 /build/
-/build 2/
-/build 2/
-CMakeFiles/
-CMakeScripts/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-*.log
-
-# Xcode generated
-*.xcodeproj/
-*.xcworkspace/
-DerivedData/
-xcuserdata/
-*.pbxuser
-*.xcbkptlist
-
-# Build artifacts
-*_artefacts/
+/build/**
 /Release/
 /Debug/
+/HALO9_Player_artefacts/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+Makefile
+*.cmake
+
+# Xcode
+*.xcworkspace/
+*.xcodeproj/
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.xcscheme
+*.xcdebugger
+
+# JUCE generated
+JuceLibraryCode/
+Builds/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+
+# Compiled objects and binaries
 *.o
 *.obj
 *.a
 *.lib
 *.so
 *.dylib
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Dependencies
-_deps/
-Juce
-
-# Compiled binaries
+*.dll
 *.exe
-*.app/
+*.app
+
+# Logs, archives, caches
+*.log
+*.zip
+*.tar.gz
+*.7z
+node_modules/
+__pycache__/
+
+# Misc
+*.DS_Store
+
+# Keep the repo clean — add other ignores below as needed
