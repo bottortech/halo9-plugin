@@ -445,24 +445,7 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
         g.setColour(activeAccentColor.withAlpha(0.10f));
         g.drawRoundedRectangle(moduleRect, corner, 0.9f);
 
-        // Active pack name (left, top row)
-        float textLeft = hubBounds.getX() + 14.0f;
-        float textW = 130.0f;
-        float textTop = hubBounds.getY() + 10.0f;
-
-        // (halo9.png overlay intentionally not drawn here; it will be drawn after the disc so it sits outside the circle)
-        g.setColour(activeAccentColor);
-        g.setFont(juce::Font(10.0f, juce::Font::bold));
-        g.drawText(activePackName,
-                   juce::Rectangle<float>(textLeft, textTop, textW, 14.0f),
-                   juce::Justification::left, false);
-
-        // Active kit name (left, bottom row)
-        g.setColour(juce::Colour(0xff8b949e));
-        g.setFont(juce::Font(9.0f));
-        g.drawText(activeKitName,
-                   juce::Rectangle<float>(textLeft, textTop + 16.0f, textW, 12.0f),
-                   juce::Justification::left, false);
+        // Pack name display removed (consolidated into Now Playing panel)
 
         // Admin indicator (right)
         if (libraryPanel.adminMode)
@@ -583,31 +566,7 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
         g.drawEllipse(discBounds.reduced(3.0f), 2.0f);
     }
 
-    // ── Logo guide strip (thin horizontal indicator at top of disc) ──────
-    {
-        float stripWidth = discBounds.getWidth() * 0.40f;  // 40% of disc width
-        float stripHeight = juce::jmax(6.0f, discBounds.getHeight() * 0.02f);
-        float stripX = discCentre.x - stripWidth * 0.5f;
-        // Position near the top inside edge of the disc (top-center guide)
-        float stripY = discCentre.y - discRadius * 0.72f;
-        auto stripBounds = juce::Rectangle<float>(stripX, stripY, stripWidth, stripHeight);
-
-        // Subtle glow behind strip
-        g.setColour(activeAccentColor.withAlpha(0.08f));
-        g.fillRoundedRectangle(stripBounds.expanded(2.0f, 1.0f), 4.0f);
-
-        // Main strip with gradient
-        juce::ColourGradient stripGrad(
-            activeAccentColor.withAlpha(0.18f), stripX, stripY,
-            activeAccentColor.withAlpha(0.10f), stripX, stripY + stripHeight,
-            false);
-        g.setGradientFill(stripGrad);
-        g.fillRoundedRectangle(stripBounds, 4.0f);
-
-        // Subtle inner shine
-        g.setColour(juce::Colours::white.withAlpha(0.06f));
-        g.fillRoundedRectangle(stripBounds.reduced(0.5f).withHeight(stripHeight * 0.4f), 3.0f);
-    }
+    // ── Horizontal bar removed as requested ──
 
     // ── Glassy keyboard panel (premium glass aesthetic) ──────────────────
     auto kbBounds = keyboardComponent.getBounds().toFloat();
@@ -666,22 +625,22 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
     // ── halo9.png overlay: draw last so it sits outside the disc (upper-left badge)
     if (logoImage.isValid() && logoImage.getWidth() > 0 && logoImage.getHeight() > 0)
     {
-        // Determine logo width relative to disc radius
+        // Determine logo width relative to disc radius (1.8x-2.5x bigger)
         const float margin = 18.0f;
         int imgW = logoImage.getWidth();
         int imgH = logoImage.getHeight();
-        int logoW = (int)std::round(discRadius * 0.35f);
+        int logoW = (int)std::round(discRadius * 0.65f);  // Increased from 0.35f to 0.65f (1.86x larger)
         int logoH = juce::jmax(2, (int)std::round((float)imgH / (float)imgW * (float)logoW));
 
-        // Per requested placement (upper-left outside the disc)
-        float logoX = discBounds.getX() - ((float)logoW * 0.35f);
-        float logoY = discBounds.getY() + (discBounds.getHeight() * 0.10f);
+        // Per requested placement (upper-left outside the disc as a badge)
+        float logoX = discBounds.getX() - ((float)logoW * 0.40f);
+        float logoY = discBounds.getY() + (discBounds.getHeight() * 0.08f);
 
         // Clamp so it doesn't clip editor bounds
         logoX = juce::jmax(bounds.getX() + 12.0f, logoX);
         logoY = juce::jlimit(bounds.getY() + 12.0f, bounds.getBottom() - (float)logoH - 12.0f, logoY);
 
-        // Draw at full opacity (no faint alpha)
+        // Draw at full opacity (100%, not faint)
         g.saveState();
         g.setOpacity(1.0f);
         g.drawImageWithin(logoImage, (int)logoX, (int)logoY, logoW, logoH, juce::RectanglePlacement::stretchToFit);
