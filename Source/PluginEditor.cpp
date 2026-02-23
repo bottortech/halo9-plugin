@@ -332,33 +332,60 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
 
-    // Use a solid neutral background to avoid accidental transparency
-    g.fillAll(juce::Colour(0xff6f7476));
+    // ── Premium gradient background (match disc/top-hub tones for cohesion) ──
+    {
+        // Use the panel/disc tones so the outer sheet reads as one surface
+        juce::Colour c1 = H9::panel.darker(0.06f);
+        juce::Colour c2 = H9::panel.darker(0.16f);
+        juce::ColourGradient bgGrad(c1, discCentre.x, discCentre.y,
+                                   c2, bounds.getCentreX() + bounds.getWidth() * 0.35f, bounds.getCentreY(), true);
+        g.setGradientFill(bgGrad);
+        g.fillRect(bounds);
+    }
 
     // Ensure the disc always has a usable radius (avoid early return)
     discRadius = juce::jmax(50.0f, discRadius);
 
-    // ── Ambient teal glow behind disc ────────────────────────────────────
+    // ── Layered teal glow behind disc (soft halo, softened for premium feel) ─
     {
-        float glowR = discRadius * 1.4f;
-        juce::ColourGradient glow(
-            activeAccentColor.withAlpha(0.05f),
+        // Outermost glow: large soft bloom
+        float glowR1 = discRadius * 1.30f;
+        juce::ColourGradient glow1(
+            activeAccentColor.withAlpha(0.06f),
             discCentre.x, discCentre.y,
             juce::Colours::transparentBlack,
-            discCentre.x + glowR, discCentre.y,
+            discCentre.x + glowR1, discCentre.y,
             true);
-        g.setGradientFill(glow);
-        g.fillEllipse(discCentre.x - glowR, discCentre.y - glowR,
-                      glowR * 2.0f, glowR * 2.0f);
+        g.setGradientFill(glow1);
+        g.fillEllipse(discCentre.x - glowR1, discCentre.y - glowR1,
+                      glowR1 * 2.0f, glowR1 * 2.0f);
+
+        // Mid glow: medium size, slightly brighter but still soft
+        float glowR2 = discRadius * 1.12f;
+        juce::ColourGradient glow2(
+            activeAccentColor.withAlpha(0.10f),
+            discCentre.x, discCentre.y,
+            juce::Colours::transparentBlack,
+            discCentre.x + glowR2, discCentre.y,
+            true);
+        g.setGradientFill(glow2);
+        g.fillEllipse(discCentre.x - glowR2, discCentre.y - glowR2,
+                      glowR2 * 2.0f, glowR2 * 2.0f);
+
+        // Inner glow: smallest, very subtle
+        float glowR3 = discRadius * 1.03f;
+        g.setColour(activeAccentColor.withAlpha(0.05f));
+        g.fillEllipse(discCentre.x - glowR3, discCentre.y - glowR3,
+                      glowR3 * 2.0f, glowR3 * 2.0f);
     }
 
-    // ── Soft vignette at edges ───────────────────────────────────────────
+    // ── Soft vignette at edges (darken corners) ──────────────────────────
     {
         float vigR = juce::jmin(bounds.getWidth(), bounds.getHeight()) * 0.55f;
         juce::ColourGradient vig(
             juce::Colours::transparentBlack,
             bounds.getCentreX(), bounds.getCentreY(),
-            juce::Colours::black.withAlpha(0.22f),
+            juce::Colours::black.withAlpha(0.18f),
             bounds.getCentreX() + vigR, bounds.getCentreY(),
             true);
         g.setGradientFill(vig);
@@ -368,17 +395,17 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
     // ── Top Hub panel ────────────────────────────────────────────────────
     if (!hubBounds.isEmpty())
     {
-        // Glass background
+        // Glass background for hub
         juce::ColourGradient hubGrad(
-            juce::Colour(0xff1c2129), hubBounds.getX(), hubBounds.getY(),
-            juce::Colour(0xff12161c), hubBounds.getX(), hubBounds.getBottom(),
+            H9::panel.brighter(0.02f), hubBounds.getX(), hubBounds.getY(),
+            H9::panel.darker(0.06f), hubBounds.getX(), hubBounds.getBottom(),
             false);
         g.setGradientFill(hubGrad);
         g.fillRoundedRectangle(hubBounds, 10.0f);
 
-        // Teal stroke
-        g.setColour(activeAccentColor.withAlpha(0.10f));
-        g.drawRoundedRectangle(hubBounds, 10.0f, 0.8f);
+        // Teal stroke for hub container (very subtle)
+        g.setColour(activeAccentColor.withAlpha(0.08f));
+        g.drawRoundedRectangle(hubBounds, 10.0f, 0.6f);
 
         // Glass shine
         g.setColour(juce::Colours::white.withAlpha(0.02f));
@@ -386,33 +413,44 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
             hubBounds.reduced(1.5f).withHeight(hubBounds.getHeight() * 0.4f),
             9.0f);
 
+        // --- Knob module background (panel behind knobs) -----------------
+        // Compute union of knob bounds so the panel sizes responsively
+        juce::Rectangle<float> knobsUnion;
+        {
+            juce::Slider* slidersArr[] = { &masterSlider, &cutoffSlider, &atmosphereSlider, &synthLevelSlider };
+            knobsUnion = slidersArr[0]->getBounds().toFloat();
+            for (int i = 1; i < 4; ++i)
+                knobsUnion = knobsUnion.getUnion(slidersArr[i]->getBounds().toFloat());
+        }
+
+        // Padding relative to knob height
+        float padX = juce::jmax(12.0f, knobsUnion.getHeight() * 0.6f);
+        float padY = juce::jmax(6.0f, knobsUnion.getHeight() * 0.35f);
+        auto moduleRect = knobsUnion.expanded(padX, padY);
+        float corner = juce::jmin(14.0f, moduleRect.getHeight() * 0.45f);
+
+        // Soft shadow below module
+        g.setColour(juce::Colours::black.withAlpha(0.12f));
+        g.fillRoundedRectangle(moduleRect.translated(0.0f, 3.0f), corner);
+
+        // Module background (glassy)
+        juce::ColourGradient moduleGrad(
+            H9::panel.brighter(0.03f), moduleRect.getX(), moduleRect.getY(),
+            H9::panel.darker(0.08f), moduleRect.getX(), moduleRect.getBottom(),
+            false);
+        g.setGradientFill(moduleGrad);
+        g.fillRoundedRectangle(moduleRect, corner);
+
+        // Thin teal outline for module
+        g.setColour(activeAccentColor.withAlpha(0.10f));
+        g.drawRoundedRectangle(moduleRect, corner, 0.9f);
+
         // Active pack name (left, top row)
         float textLeft = hubBounds.getX() + 14.0f;
         float textW = 130.0f;
         float textTop = hubBounds.getY() + 10.0f;
 
-        // Draw the HALO9 logo centered in a transparent area directly below the Top Hub.
-        const float logoAreaHeight = 52.0f; // reserved area height under the hub
-        juce::Rectangle<int> logoArea(0, (int)hubBounds.getBottom(), getWidth(), (int)logoAreaHeight);
-
-        DBG("logo valid=" + juce::String(logoImage.isValid() ? "true" : "false") + " size=" + juce::String(logoImage.getWidth()) + "x" + juce::String(logoImage.getHeight()));
-
-        if (logoImage.isValid() && logoImage.getWidth() > 0 && logoImage.getHeight() > 0)
-        {
-            const int desiredH = juce::jmin(30, logoArea.getHeight());
-            int imgW = logoImage.getWidth();
-            int imgH = logoImage.getHeight();
-            int targetW = (int)((float)imgW / (float)imgH * (float)desiredH);
-            int dx = logoArea.getX() + (logoArea.getWidth() - targetW) / 2;
-            int dy = logoArea.getY() + (logoArea.getHeight() - desiredH) / 2;
-            g.drawImageWithin(logoImage, dx, dy, targetW, desiredH, juce::RectanglePlacement::centred);
-        }
-        else
-        {
-            g.setColour(juce::Colours::white.withAlpha(0.65f));
-            g.setFont(juce::Font(13.0f, juce::Font::bold));
-            g.drawFittedText("HALO9", logoArea, juce::Justification::centred, 1);
-        }
+        // (halo9.png overlay intentionally not drawn here; it will be drawn after the disc so it sits outside the circle)
         g.setColour(activeAccentColor);
         g.setFont(juce::Font(10.0f, juce::Font::bold));
         g.drawText(activePackName,
@@ -441,30 +479,72 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
                                               40.0f, 10.0f),
                        juce::Justification::right, false);
         }
+
+        // ── Now Playing digital panel (right side of hub) ───────────────
+        {
+            // Panel width responsive to hub width, but never too large
+            float panelW = juce::jmin(160.0f, hubBounds.getWidth() * 0.26f);
+            float panelH = juce::jmax(44.0f, hubBounds.getHeight() * 0.58f);
+            // Provide more spacing from the knob module so they read as distinct modules
+            float spacingRight = 28.0f; // base spacing
+            if (!moduleRect.isEmpty())
+                spacingRight = juce::jmax(spacingRight, moduleRect.getWidth() * 0.12f);
+            float panelX = hubBounds.getRight() - panelW - spacingRight;
+            float panelY = hubBounds.getY() + (hubBounds.getHeight() - panelH) * 0.5f;
+            auto panelBounds = juce::Rectangle<float>(panelX, panelY, panelW, panelH);
+
+            // If the panel would overlap the knob module, nudge it right of the module instead
+            if (!moduleRect.isEmpty() && panelBounds.intersects(moduleRect))
+            {
+                panelBounds.setX(moduleRect.getRight() + spacingRight);
+            }
+
+            // Subtle drop shadow so Now Playing reads as its own module
+            g.setColour(juce::Colours::black.withAlpha(0.10f));
+            g.fillRoundedRectangle(panelBounds.translated(0.0f, 2.0f), 6.0f);
+
+            // Dark glass background
+            juce::ColourGradient panelGrad(
+                juce::Colour(0xff1f2428), panelBounds.getX(), panelBounds.getY(),
+                juce::Colour(0xff151a1e), panelBounds.getX(), panelBounds.getBottom(),
+                false);
+            g.setGradientFill(panelGrad);
+            g.fillRoundedRectangle(panelBounds, 6.0f);
+
+            // Teal accent border
+            g.setColour(activeAccentColor.withAlpha(0.15f));
+            g.drawRoundedRectangle(panelBounds, 6.0f, 0.8f);
+
+            // Inner shine
+            g.setColour(juce::Colours::white.withAlpha(0.03f));
+            g.fillRoundedRectangle(
+                panelBounds.reduced(1.0f).withHeight(panelBounds.getHeight() * 0.35f),
+                5.0f);
+
+            // Label: "NOW PLAYING"
+            g.setColour(activeAccentColor.withAlpha(0.7f));
+            g.setFont(juce::Font(7.0f, juce::Font::bold));
+            g.drawText("NOW PLAYING",
+                       panelBounds.withHeight(12.0f).reduced(4.0f, 0.0f),
+                       juce::Justification::left, false);
+
+            // Current sound name (pack name)
+            g.setColour(juce::Colours::white.withAlpha(0.85f));
+            g.setFont(juce::Font(10.0f, juce::Font::bold));
+            g.drawText(activePackName,
+                       panelBounds.withTrimmedTop(12.0f).withHeight(18.0f).reduced(4.0f, 2.0f),
+                       juce::Justification::left, false);
+
+            // Kit name (smaller text)
+            g.setColour(juce::Colour(0xff8b949e));
+            g.setFont(juce::Font(8.0f));
+            g.drawText(activeKitName.isEmpty() ? "No Kit" : activeKitName,
+                       panelBounds.withTrimmedTop(30.0f).reduced(4.0f, 2.0f),
+                       juce::Justification::left, false);
+        }
     }
 
-    // ── Glassy keyboard panel ────────────────────────────────────────────
-    auto kbBounds = keyboardComponent.getBounds().toFloat();
-    if (!kbBounds.isEmpty())
-    {
-        auto glassArea = kbBounds.expanded(14.0f, 10.0f);
-
-        juce::ColourGradient grad(
-            juce::Colour(0xff1a1f26), glassArea.getX(), glassArea.getY(),
-            juce::Colour(0xff0d1117), glassArea.getX(), glassArea.getBottom(),
-            false);
-        g.setGradientFill(grad);
-        g.fillRoundedRectangle(glassArea, 12.0f);
-
-        g.setColour(activeAccentColor.withAlpha(0.08f));
-        g.drawRoundedRectangle(glassArea, 12.0f, 1.0f);
-
-        g.setColour(juce::Colours::white.withAlpha(0.03f));
-        auto shine = glassArea.reduced(1.5f).withHeight(glassArea.getHeight() * 0.3f);
-        g.fillRoundedRectangle(shine, 11.0f);
-    }
-
-    // ── Disc fill (radial gradient for subtle depth) ─────────────────────
+    // ── Disc fill (radial gradient for subtle depth + 3D feel) ───────────
     {
         juce::ColourGradient discGrad(
             H9::bgLight.brighter(0.02f), discCentre.x, discCentre.y - discRadius * 0.18f,
@@ -472,16 +552,95 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
         g.setGradientFill(discGrad);
         g.fillEllipse(discBounds);
 
+        // Top-left subtle highlight (dimensional effect)
+        const float highlightAngle = -45.0f * juce::MathConstants<float>::pi / 180.0f;
+        const float highlightDist = discRadius * 0.65f;
+        const float hlX = discCentre.x + std::cos(highlightAngle) * highlightDist;
+        const float hlY = discCentre.y + std::sin(highlightAngle) * highlightDist;
+        juce::ColourGradient hlGrad(
+            juce::Colours::white.withAlpha(0.08f), hlX, hlY,
+            juce::Colours::transparentBlack, discCentre.x, discCentre.y, false);
+        g.setGradientFill(hlGrad);
+        g.fillEllipse(discBounds);
+
+        // Bottom-right subtle shadow (dimensional effect)
+        const float shadowAngle = 135.0f * juce::MathConstants<float>::pi / 180.0f;
+        const float shadowDist = discRadius * 0.7f;
+        const float shX = discCentre.x + std::cos(shadowAngle) * shadowDist;
+        const float shY = discCentre.y + std::sin(shadowAngle) * shadowDist;
+        juce::ColourGradient shGrad(
+            juce::Colours::black.withAlpha(0.06f), shX, shY,
+            juce::Colours::transparentBlack, discCentre.x, discCentre.y, false);
+        g.setGradientFill(shGrad);
+        g.fillEllipse(discBounds);
+
         // Inner rim highlight
         g.setColour(juce::Colours::white.withAlpha(0.03f));
         g.drawEllipse(discBounds.reduced(4.0f), 1.2f);
 
-        // Slight outer teal ring (signature halo) — keep very subtle
-        g.setColour(activeAccentColor.withAlpha(0.14f));
+        // Soft outer teal ring (signature halo)
+        g.setColour(activeAccentColor.withAlpha(0.12f));
         g.drawEllipse(discBounds.reduced(3.0f), 2.0f);
     }
 
-    // ── Centered "H9" with refined typography (slightly bolder + inner tint)
+    // ── Logo guide strip (thin horizontal indicator at top of disc) ──────
+    {
+        float stripWidth = discBounds.getWidth() * 0.40f;  // 40% of disc width
+        float stripHeight = juce::jmax(6.0f, discBounds.getHeight() * 0.02f);
+        float stripX = discCentre.x - stripWidth * 0.5f;
+        // Position near the top inside edge of the disc (top-center guide)
+        float stripY = discCentre.y - discRadius * 0.72f;
+        auto stripBounds = juce::Rectangle<float>(stripX, stripY, stripWidth, stripHeight);
+
+        // Subtle glow behind strip
+        g.setColour(activeAccentColor.withAlpha(0.08f));
+        g.fillRoundedRectangle(stripBounds.expanded(2.0f, 1.0f), 4.0f);
+
+        // Main strip with gradient
+        juce::ColourGradient stripGrad(
+            activeAccentColor.withAlpha(0.18f), stripX, stripY,
+            activeAccentColor.withAlpha(0.10f), stripX, stripY + stripHeight,
+            false);
+        g.setGradientFill(stripGrad);
+        g.fillRoundedRectangle(stripBounds, 4.0f);
+
+        // Subtle inner shine
+        g.setColour(juce::Colours::white.withAlpha(0.06f));
+        g.fillRoundedRectangle(stripBounds.reduced(0.5f).withHeight(stripHeight * 0.4f), 3.0f);
+    }
+
+    // ── Glassy keyboard panel (premium glass aesthetic) ──────────────────
+    auto kbBounds = keyboardComponent.getBounds().toFloat();
+    if (!kbBounds.isEmpty())
+    {
+        auto glassArea = kbBounds.expanded(14.0f, 10.0f);
+
+        // Soft shadow above keyboard (detachment effect)
+        g.setColour(juce::Colours::black.withAlpha(0.12f));
+        g.fillRoundedRectangle(glassArea.translated(0.0f, -4.0f).withHeight(4.0f), 12.0f);
+
+        // Glass background gradient (charcoal tones)
+        juce::ColourGradient grad(
+            juce::Colour(0xff2a2f35), glassArea.getX(), glassArea.getY(),
+            juce::Colour(0xff1a1f26), glassArea.getX(), glassArea.getBottom(),
+            false);
+        g.setGradientFill(grad);
+        g.fillRoundedRectangle(glassArea, 12.0f);
+
+        // Teal accent stroke
+        g.setColour(activeAccentColor.withAlpha(0.10f));
+        g.drawRoundedRectangle(glassArea, 12.0f, 1.0f);
+
+        // Subtle top shine (glass effect)
+        g.setColour(juce::Colours::white.withAlpha(0.04f));
+        auto shine = glassArea.reduced(1.5f).withHeight(glassArea.getHeight() * 0.35f);
+        g.fillRoundedRectangle(shine, 11.0f);
+    }
+
+
+
+    // ── Pad flash overlays (circles) ─────────────────────────────────────
+    // ── Centered "H9" text inside the disc (teal) ─────────────────────
     {
         float baseFont = discBounds.getWidth() * 0.12f * 1.06f; // +6% perceived weight
 
@@ -504,7 +663,30 @@ void HALO9PlayerAudioProcessorEditor::paint(juce::Graphics& g)
                       (float)textR.getHeight());
     }
 
-    // ── Pad flash overlays (circles) ─────────────────────────────────────
+    // ── halo9.png overlay: draw last so it sits outside the disc (upper-left badge)
+    if (logoImage.isValid() && logoImage.getWidth() > 0 && logoImage.getHeight() > 0)
+    {
+        // Determine logo width relative to disc radius
+        const float margin = 18.0f;
+        int imgW = logoImage.getWidth();
+        int imgH = logoImage.getHeight();
+        int logoW = (int)std::round(discRadius * 0.35f);
+        int logoH = juce::jmax(2, (int)std::round((float)imgH / (float)imgW * (float)logoW));
+
+        // Per requested placement (upper-left outside the disc)
+        float logoX = discBounds.getX() - ((float)logoW * 0.35f);
+        float logoY = discBounds.getY() + (discBounds.getHeight() * 0.10f);
+
+        // Clamp so it doesn't clip editor bounds
+        logoX = juce::jmax(bounds.getX() + 12.0f, logoX);
+        logoY = juce::jlimit(bounds.getY() + 12.0f, bounds.getBottom() - (float)logoH - 12.0f, logoY);
+
+        // Draw at full opacity (no faint alpha)
+        g.saveState();
+        g.setOpacity(1.0f);
+        g.drawImageWithin(logoImage, (int)logoX, (int)logoY, logoW, logoH, juce::RectanglePlacement::stretchToFit);
+        g.restoreState();
+    }
     const double now = juce::Time::getMillisecondCounterHiRes();
     for (int i = 0; i < NUM_PADS; ++i)
     {
@@ -567,8 +749,17 @@ void HALO9PlayerAudioProcessorEditor::resized()
 
     // Use the remaining area for the disc sizing math
     auto discArea = r.toFloat().reduced(16.0f);
-    float diameter = juce::jmin(discArea.getWidth(), discArea.getHeight()) * 0.88f;
-    discBounds = juce::Rectangle<float>(diameter, diameter).withCentre(discArea.getCentre());
+
+    // Slightly reduce the disc size so it breathes under the hub (approx 10-15%)
+    const float reduction = 0.88f * 0.88f; // tuned reduction factor
+    float diameter = juce::jmin(discArea.getWidth(), discArea.getHeight()) * reduction;
+
+    // Shift disc down a bit to create clear breathing room under the hub
+    auto centre = discArea.getCentre();
+    const float shiftDown = juce::jmax(8.0f, diameter * 0.08f);
+    centre.setY(centre.y + shiftDown);
+
+    discBounds = juce::Rectangle<float>(diameter, diameter).withCentre(centre);
     discCentre = discBounds.getCentre();
     discRadius = juce::jmax(50.0f, diameter * 0.5f);
 

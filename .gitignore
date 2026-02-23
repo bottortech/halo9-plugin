@@ -1,10 +1,14 @@
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
 # CMake / build outputs
-build/
-build2/
+/build/
+/build 2/
+/build 2/
 CMakeFiles/
+CMakeScripts/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
@@ -15,8 +19,30 @@ Makefile
 *.xcworkspace/
 DerivedData/
 xcuserdata/
+*.pbxuser
+*.xcbkptlist
 
-# Artifacts
+# Build artifacts
 *_artefacts/
-Release/
-Debug/
+/Release/
+/Debug/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+_deps/
+Juce
+
+# Compiled binaries
+*.exe
+*.app/
