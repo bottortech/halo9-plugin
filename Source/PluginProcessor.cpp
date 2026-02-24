@@ -7,17 +7,21 @@ HALO9PlayerAudioProcessor::HALO9PlayerAudioProcessor()
         .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
       apvts(*this, nullptr, "Parameters", createParameterLayout())
 {
+    // Load library data (packs/kits manifests)
+    auto libRoot = H9Library::findLibraryRoot();
+    if (libRoot.isDirectory())
+        library.loadFromDirectory(libRoot);
 }
 
 HALO9PlayerAudioProcessor::~HALO9PlayerAudioProcessor() = default;
 
-juce::AudioProcessorValueTreeState::ParameterLayout 
+juce::AudioProcessorValueTreeState::ParameterLayout
 HALO9PlayerAudioProcessor::createParameterLayout() const
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "master_volume", "Master Volume", 
+        "master_volume", "Master Volume",
         juce::NormalisableRange<float>(0.0f, 1.0f), 0.8f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -35,33 +39,25 @@ HALO9PlayerAudioProcessor::createParameterLayout() const
     return layout;
 }
 
-void HALO9PlayerAudioProcessor::prepareToPlay(double sr, int samplesPerBlock_)
+void HALO9PlayerAudioProcessor::prepareToPlay(double sr, int blockSize)
 {
-    sampleRate = sr;
-    samplesPerBlock = samplesPerBlock_;
+    currentSampleRate = sr;
+    currentBlockSize = blockSize;
 }
 
 void HALO9PlayerAudioProcessor::releaseResources() {}
 
-void HALO9PlayerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
+void HALO9PlayerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
                                             juce::MidiBuffer& midiMessages)
 {
-    juce::ignoreUnused(midiMessages);
-
-    // Pass through: clean pass-through with master volume applied
     auto masterVol = apvts.getRawParameterValue("master_volume")->load();
 
     for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
-    {
         buffer.applyGain(ch, 0, buffer.getNumSamples(), masterVol);
-    }
 
-    // Update keyboard state
+    // Update keyboard state from incoming MIDI
     for (const auto metadata : midiMessages)
-    {
-        if (auto* m = metadata.getMessage().getRawData())
-            midiKeyboardState.processNextMidiEvent(metadata.getMessage());
-    }
+        midiKeyboardState.processNextMidiEvent(metadata.getMessage());
 }
 
 void HALO9PlayerAudioProcessor::getStateInformation(juce::MemoryBlock& destData)

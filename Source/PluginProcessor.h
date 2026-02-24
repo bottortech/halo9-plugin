@@ -2,53 +2,52 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_audio_basics/juce_audio_basics.h>
+#include "Data/H9Library.h"
 
-// Main audio processor (DSP + state management)
 class HALO9PlayerAudioProcessor : public juce::AudioProcessor
 {
 public:
     HALO9PlayerAudioProcessor();
     ~HALO9PlayerAudioProcessor() override;
 
-    // Audio processing
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
     void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
-    // Editor
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
 
-    // Identification
     const juce::String getName() const override { return "HALO9 Player"; }
     bool acceptsMidi() const override { return true; }
     bool producesMidi() const override { return false; }
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override { return 0.0; }
 
-    // Default layout
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
     void setCurrentProgram(int) override {}
     const juce::String getProgramName(int) override { return "Default"; }
     void changeProgramName(int, const juce::String&) override {}
 
-    // State
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
-    // APVTS for parameters
-    juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
+    // Public APVTS (direct access for attachment init-list)
+    juce::AudioProcessorValueTreeState apvts;
 
-    // Keyboard state for UI
+    juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
     juce::MidiKeyboardState& getKeyboardState() { return midiKeyboardState; }
+    H9Library& getLibrary() { return library; }
+
+    static constexpr int NUM_PADS = 8;
+    juce::String padSamplePaths[NUM_PADS];
 
 private:
     juce::MidiKeyboardState midiKeyboardState;
-    juce::AudioProcessorValueTreeState apvts;
+    H9Library library;
 
-    double sampleRate { 44100.0 };
-    int samplesPerBlock { 512 };
+    double currentSampleRate { 44100.0 };
+    int currentBlockSize { 512 };
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() const;
 

@@ -70,14 +70,23 @@ juce_add_plugin(HALO9_Player
 juce_generate_juce_header(HALO9_Player)
 
 # ── Source files ─────────────────────────────────────────────────────────────
-# Clean rewrite: minimal core + UI/LookAndFeel only (no legacy Audio/Data code)
 target_sources(HALO9_Player PRIVATE
     Source/PluginProcessor.h
     Source/PluginProcessor.cpp
     Source/PluginEditor.h
     Source/PluginEditor.cpp
+
+    # Embedded assets (HALO9 logo PNG as C array)
+    Source/EmbeddedHalo9.h
+    Source/EmbeddedHalo9.cpp
+
+    # UI
     Source/UI/H9LookAndFeel.h
     Source/UI/H9LookAndFeel.cpp
+
+    # Data / helpers
+    Source/Data/H9Library.h
+    Source/Data/H9Library.cpp
 )
 
 # ── Include paths ────────────────────────────────────────────────────────────
@@ -127,5 +136,6 @@ if(APPLE)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_SOURCE_DIR}/assets/branding/halo9.png"
             "$<TARGET_FILE_DIR:HALO9_Player_Standalone>/../Resources/assets/branding/halo9.png"
+        COMMAND xattr -cr "$<TARGET_FILE_DIR:HALO9_Player_Standalone>/../.."
     )
 endif()
